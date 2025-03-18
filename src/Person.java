@@ -1,24 +1,17 @@
 import java.util.Objects;
 
 public class Person {
-    private String name; // Поле не может быть null, Строка не может быть пустой
-    private Integer weight; // Поле не может быть null, Значение поля должно быть больше 0
-    private Color eyeColor; // Поле может быть null
-    private Color hairColor; // Поле не может быть null
-    private Country nationality; // Поле может быть null
-    private Location location; // Поле не может быть null
+    private String name; // Cannot be null or empty
+    private Double weight; // Cannot be null, must be > 0
+    private Color eyeColor; // Can be null
+    private Color hairColor; // Cannot be null
+    private Country nationality; // Can be null
+    private Location location; // Cannot be null
 
     /**
-     * Constructor to create a Person.
-     * @param name Name of the Person (cannot be null or empty).
-     * @param weight The weight of the person (must be positive and non-null).
-     * @param eyeColor The person's eye color (can be null).
-     * @param hairColor The person's hair color (cannot be null).
-     * @param nationality The person's nationality (can be null).
-     * @param location The person's location (cannot be null).
-     * @throws IllegalArgumentException If any required field is invalid (e.g., null name, weight <= 0).
+     * Constructor to create a Person with all attributes.
      */
-    public Person(String name, Integer weight, Color eyeColor, Color hairColor, Country nationality, Location location) {
+    public Person(String name, Double weight, Color eyeColor, Color hairColor, Country nationality, Location location) {
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("Name cannot be null or empty.");
         }
@@ -40,12 +33,29 @@ public class Person {
         this.location = location;
     }
 
-    // Getters
+    /**
+     * Constructor to create a Person with minimal attributes (for group admins).
+     * Assuming adminAge corresponds to weight.
+     */
+    public Person(String name, Double weight) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Name cannot be null or empty.");
+        }
+        if (weight == null || weight <= 0) {
+            throw new IllegalArgumentException("Weight must be greater than 0.");
+        }
+
+        this.name = name;
+        this.weight = weight;
+        this.hairColor = Color.BLACK; // Default value
+        this.location = new Location(0, 0, "Unknown"); // Default location
+    }
+
     public String getName() {
         return name;
     }
 
-    public Integer getWeight() {
+    public Double getWeight() {
         return weight;
     }
 
@@ -75,7 +85,7 @@ public class Person {
                 ", nationality=" + (nationality != null ? nationality : "N/A") +
                 ", location=" + location +
                 '}';
-    } // FIXED: Added missing closing bracket
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -85,8 +95,8 @@ public class Person {
         return name.equals(person.name) &&
                 weight.equals(person.weight) &&
                 Objects.equals(eyeColor, person.eyeColor) &&
-                Objects.equals(hairColor, person.hairColor) && // FIXED: Using `Objects.equals()`
-                Objects.equals(nationality, person.nationality) && // FIXED: Using `Objects.equals()`
+                Objects.equals(hairColor, person.hairColor) &&
+                Objects.equals(nationality, person.nationality) &&
                 location.equals(person.location);
     }
 

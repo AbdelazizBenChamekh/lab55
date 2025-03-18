@@ -2,51 +2,43 @@ import java.time.LocalDate;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class StudyGroup implements Comparable<StudyGroup> {
-    public static AtomicInteger idGenerator = new AtomicInteger(1);
+    private static final AtomicInteger idGenerator = new AtomicInteger(1);
 
-    private final int id; // Значение должно быть уникальным и больше 0
-    private String name; // Поле не может быть null или пустым
-    private Coordinates coordinates; // Поле не может быть null
-    private LocalDate creationDate; // Поле не может быть null, генерируется автоматически
-    private long studentsCount; // Должно быть больше 0
-    private Long shouldBeExpelled; // Может быть null, если не null - должно быть больше 0
-    private FormOfEducation formOfEducation; // Поле не может быть null
-    private Semester semesterEnum; // Поле может быть null
-    private Person groupAdmin; // Поле не может быть null
+    private int id;
+    private String name;
+    private Coordinates coordinates;
+    private LocalDate creationDate;
+    private long studentsCount;
+    private Long shouldBeExpelled;
+    private FormOfEducation formOfEducation;
+    private Semester semesterEnum;
+    private Person groupAdmin;
+    private Location location;
 
-    /**
-     * Constructor for creating a new StudyGroup.
-     * @param name Name of the study group (cannot be null or empty).
-     * @param coordinates Location coordinates (cannot be null).
-     * @param studentsCount Number of students (>0).
-     * @param shouldBeExpelled Number of students to be expelled (can be null, must be > 0 if present).
-     * @param formOfEducation Form of education (cannot be null).
-     * @param semesterEnum Current semester (can be null).
-     * @param groupAdmin Group administrator (cannot be null).
-     */
+    // ✅ Full Constructor
     public StudyGroup(String name, Coordinates coordinates, long studentsCount, Long shouldBeExpelled,
-                      FormOfEducation formOfEducation, Semester semesterEnum, Person groupAdmin) {
+                      FormOfEducation formOfEducation, Semester semesterEnum, Person groupAdmin, Location location) {
         if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("Name cannot be null or empty.");
+            throw new IllegalArgumentException("❌ Name cannot be null or empty.");
         }
         if (coordinates == null) {
-            throw new IllegalArgumentException("Coordinates cannot be null.");
+            throw new IllegalArgumentException("❌ Coordinates cannot be null.");
         }
         if (studentsCount <= 0) {
-            throw new IllegalArgumentException("Students count must be greater than 0.");
+            throw new IllegalArgumentException("❌ Students count must be greater than 0.");
         }
         if (shouldBeExpelled != null && shouldBeExpelled <= 0) {
-            throw new IllegalArgumentException("Should be expelled count must be greater than 0.");
+            throw new IllegalArgumentException("❌ Should be expelled count must be greater than 0.");
         }
         if (formOfEducation == null) {
-            throw new IllegalArgumentException("FormOfEducation cannot be null.");
+            throw new IllegalArgumentException("❌ FormOfEducation cannot be null.");
         }
         if (groupAdmin == null) {
-            throw new IllegalArgumentException("GroupAdmin cannot be null.");
+            throw new IllegalArgumentException("❌ GroupAdmin cannot be null.");
         }
 
-        this.id = StudyGroup.idGenerator.getAndIncrement();
-        this.creationDate = LocalDate.now(); // Fixed typo
+        this.id = idGenerator.getAndIncrement();
+        this.creationDate = LocalDate.now();
         this.name = name;
         this.coordinates = coordinates;
         this.studentsCount = studentsCount;
@@ -54,61 +46,80 @@ public class StudyGroup implements Comparable<StudyGroup> {
         this.formOfEducation = formOfEducation;
         this.semesterEnum = semesterEnum;
         this.groupAdmin = groupAdmin;
-    } // Fixed: Added missing closing bracket
-
-    // Getters
-    public int getId() {
-        return id;
+        this.location = location;
     }
 
-    public String getName() {
-        return name;
+    // ✅ Constructor without Location (Optional)
+    public StudyGroup(String name, Coordinates coordinates, long studentsCount, Long shouldBeExpelled,
+                      FormOfEducation formOfEducation, Semester semesterEnum, Person groupAdmin) {
+        this(name, coordinates, studentsCount, shouldBeExpelled, formOfEducation, semesterEnum, groupAdmin, null);
     }
 
-    public Coordinates getCoordinates() {
-        return coordinates;
+    // ✅ Safe `toString()` with null checks
+    @Override
+    public String toString() {
+        return "StudyGroup{" +
+                "ID=" + id +
+                ", Name='" + name + '\'' +
+                ", Coordinates=(" + (coordinates != null ? coordinates.getX() + ", " + coordinates.getY() : "N/A") + ')' +
+                ", StudentsCount=" + studentsCount +
+                ", ShouldBeExpelled=" + (shouldBeExpelled != null ? shouldBeExpelled : "N/A") +
+                ", FormOfEducation=" + formOfEducation +
+                ", Semester=" + (semesterEnum != null ? semesterEnum : "N/A") +
+                ", GroupAdmin=" + (groupAdmin != null ? groupAdmin : "None") +
+                ", Location=" + (location != null ? location.toString() : "None") +
+                '}';
     }
 
-    public LocalDate getCreationDate() {
-        return creationDate;
+    // ✅ Safe CSV conversion
+    public String toCSV() {
+        return String.join(",",
+                String.valueOf(id),
+                name,
+                (coordinates != null ? String.valueOf(coordinates.getX()) : ""),
+                (coordinates != null ? String.valueOf(coordinates.getY()) : ""),
+                String.valueOf(studentsCount),
+                (shouldBeExpelled != null ? String.valueOf(shouldBeExpelled) : ""),
+                formOfEducation.toString(),
+                (semesterEnum != null ? semesterEnum.toString() : ""),
+                (groupAdmin != null ? groupAdmin.getName() : ""),
+                (groupAdmin != null && groupAdmin.getWeight() != null ? String.valueOf(groupAdmin.getWeight()) : ""),
+                (groupAdmin != null && groupAdmin.getEyeColor() != null ? groupAdmin.getEyeColor().toString() : ""),
+                (groupAdmin != null && groupAdmin.getHairColor() != null ? groupAdmin.getHairColor().toString() : ""),
+                (groupAdmin != null && groupAdmin.getNationality() != null ? groupAdmin.getNationality().toString() : ""),
+                (location != null ? String.valueOf(location.getX()) : ""),
+                (location != null ? String.valueOf(location.getY()) : ""),
+                (location != null ? location.getName() : "")
+        );
     }
 
-    public long getStudentsCount() {
-        return studentsCount;
-    }
-
-    public Long getShouldBeExpelled() {
-        return shouldBeExpelled;
-    }
-
-    public FormOfEducation getFormOfEducation() {
-        return formOfEducation;
-    }
-
-    public Semester getSemesterEnum() {
-        return semesterEnum;
-    }
-
-    public Person getGroupAdmin() {
-        return groupAdmin;
-    }
-
+    // ✅ Implementing compareTo() based on studentsCount
     @Override
     public int compareTo(StudyGroup other) {
         return Long.compare(this.studentsCount, other.studentsCount);
     }
 
+    // ✅ Getters
+    public int getId() { return id; }
+    public String getName() { return name; }
+    public Coordinates getCoordinates() { return coordinates; }
+    public long getStudentsCount() { return studentsCount; }
+    public Long getShouldBeExpelled() { return shouldBeExpelled; }
+    public FormOfEducation getFormOfEducation() { return formOfEducation; }
+    public Semester getSemesterEnum() { return semesterEnum; }
+    public Person getGroupAdmin() { return groupAdmin; }
+    public Location getLocation() { return location; }
+    public LocalDate getCreationDate() { return creationDate; }
 
-    @Override
-    public String toString() {
-        return "StudyGroup{id=" + id + ", name='" + name + "', studentsCount=" + studentsCount + "}";
-    }
-
-    public String toCSV() {
-        return id + "," + name + "," + coordinates.getX() + "," + coordinates.getY() + "," +
-                studentsCount + "," + (shouldBeExpelled != null ? shouldBeExpelled : "") + "," +
-                formOfEducation + "," + (semesterEnum != null ? semesterEnum : "") + "," +
-                groupAdmin.getName();
-    }
-
+    // ✅ Setters (if needed)
+    public void setId(int id) { this.id = id; }
+    public void setName(String name) { this.name = name; }
+    public void setCoordinates(Coordinates coordinates) { this.coordinates = coordinates; }
+    public void setStudentsCount(long studentsCount) { this.studentsCount = studentsCount; }
+    public void setShouldBeExpelled(Long shouldBeExpelled) { this.shouldBeExpelled = shouldBeExpelled; }
+    public void setFormOfEducation(FormOfEducation formOfEducation) { this.formOfEducation = formOfEducation; }
+    public void setSemesterEnum(Semester semesterEnum) { this.semesterEnum = semesterEnum; }
+    public void setGroupAdmin(Person groupAdmin) { this.groupAdmin = groupAdmin; }
+    public void setLocation(Location location) { this.location = location; }
 }
+

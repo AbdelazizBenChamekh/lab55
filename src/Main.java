@@ -1,136 +1,69 @@
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
-/**
- * Entry point
- */
 public class Main {
     public static void main(String[] args) {
-
-        List<String> commandHistory = new ArrayList<>();
+        // Get the file name from the environment variable or default to "data/test.csv"
         String fileName = System.getenv("STUDY_GROUPS_FILE");
         if (fileName == null || fileName.isEmpty()) {
             fileName = "data/test.csv";
-            System.err.println("Please set the STUDY_GROUPS_FILE environment variable");
-            return;
+            System.err.println("Warning: STUDY_GROUPS_FILE environment variable not set. Using default: " + fileName);
         }
+
+        // Ensure the file exists
         File file = new File(fileName);
         if (!file.exists()) {
-            System.err.println("The file " + fileName + " does not exist");
+            System.err.println("Error: The file " + fileName + " does not exist.");
             return;
         }
 
-        CollectionManager manager = new CollectionManager(fileName);
+        // Initialize CollectionManager1 (which already contains Save and Load functionality)
+        CollectionManager1 collectionManager = new CollectionManager1(fileName);
+
+        // Display available commands at the start
+        showAvailableCommands();
+
+        // Start user interaction
         Scanner scanner = new Scanner(System.in);
+        System.out.println("Welcome to the Study Group Management System!");
 
         while (true) {
             System.out.print("> ");
-            String line = scanner.nextLine().trim().toLowerCase();
+            String input = scanner.nextLine().trim();
 
-            if (!line.isEmpty()) {
-                manager.addToHistory(line); // ✅ Now handled inside CollectionManager
-            }
-
-
-            switch (line) {
-                case "help":
-                    System.out.println("Available commands: add, show, remove_by_id, save, exit, history, update, remove_lower, clear, execute_script, remove_any_by_form_of_education, add_if_min, info, print_ascending, print_field_ascending_group_admin");
-                    break;
-
-                case "history":
-                    manager.printHistory();
-                    break;
-
-                case "add":
-                    manager.addStudyGroupFromUser();
-                    break;
-
-                /*case "update":
-                    System.out.print("Enter StudyGroup ID: ");
-                    int updateId = scanner.nextInt();
-                    scanner.nextLine(); // Fix: Consume the leftover newline
-                    manager.updateStudyGroup(updateId);
-                    break;*/
-
-                case "remove_by_id":
-                    System.out.print("Enter ID: ");
-                    int removeId = scanner.nextInt();
-                    scanner.nextLine(); // Fix: Consume the leftover newline
-                    manager.removeById(removeId);
-                    break;
-
-                case "remove_lower":
-                    System.out.println("Enter reference StudyGroup details:");
-                    StudyGroup referenceGroup = manager.addStudyGroupFromUser();
-                    manager.removeLower(referenceGroup);
-                    break;
-
-                case "show":
-                    manager.showStudyGroups();
-                    break;
-
-                case "save":
-                    manager.saveToFile();
-                    break;
-
-                case "clear":
-                    manager.clearCollection();
-                    break;
-
-                case "execute_script":
-                    System.out.print("Enter script file name: ");
-                    String scriptFile = scanner.next();
-                    scanner.nextLine(); // Fix: Consume the leftover newline
-                    manager.executeScript(scriptFile);
-                    break;
-
-                case "exit":
-                    System.out.println("Exiting without saving ... ");
-                    return;
-
-                case "info":
-                    manager.info();
-                    break;
-
-                case "update":
-                    System.out.print("Enter StudyGroup ID: ");
-                    int updateId = scanner.nextInt();
-                    scanner.nextLine(); // Consume newline
-                    manager.updateStudyGroup(updateId);
-                    break;
-
-                case "add_if_min":
-                    System.out.println("Enter details for the new StudyGroup:");
-                    StudyGroup newGroup = manager.addStudyGroupFromUser();
-                    manager.addIfMin(newGroup);
-                    break;
-
-                case "remove_any_by_form_of_education":
-                    System.out.print("Enter FormOfEducation (DISTANCE_EDUCATION, FULL_TIME_EDUCATION, EVENING_CLASSES): ");
-                    try {
-                        FormOfEducation form = FormOfEducation.valueOf(scanner.next().toUpperCase());
-                        scanner.nextLine(); // Consume leftover newline
-                        manager.removeAnyByFormOfEducation(form);
-                    } catch (IllegalArgumentException e) {
-                        System.out.println("Invalid FormOfEducation. Please enter a valid value.");
-                    }
-                    break;
-                case "print_ascending":
-                    manager.printAscending();
-                    break;
-                case "print_field_ascending_group_admin":
-                    manager.printFieldAscendingGroupAdmin();
-                    break;
-
-
-
-
-                default:
-                    System.out.println("Unknown command. Type 'help' for a list of commands.");
-                    break;
+            if (!input.isEmpty()) {
+                collectionManager.executeCommand(input);
+            } else {
+                System.out.println("Invalid input. Type 'help' for a list of commands.");
             }
         }
     }
+
+    // Method to display available commands
+    private static void showAvailableCommands() {
+        System.out.println("Available Commands:");
+        System.out.println("1.  add - Add a new StudyGroup");
+        System.out.println("2.  save - Save the collection");
+        System.out.println("3.  info - Display information about the collection");
+        System.out.println("4.  show - Show all StudyGroups");
+        System.out.println("5.  update - Update an existing StudyGroup");
+        System.out.println("6.  remove_by_id - Remove StudyGroup by ID");
+        System.out.println("7.  clear - Clear the collection");
+        System.out.println("8.  execute_script - Execute commands from a script file");
+        System.out.println("9.  exit - Exit the program");
+        System.out.println("10. add_if_min - Add StudyGroup if it's the smallest by students count");
+        System.out.println("11. remove_lower - Remove all StudyGroups with a lower students count");
+        System.out.println("12. history - Show command history");
+        System.out.println("13. remove_any_by_form_of_education - Remove StudyGroup by form of education");
+        System.out.println("14. print_ascending - Print StudyGroups in ascending order");
+        System.out.println("15. print_field_ascending_group_admin - Print StudyGroups sorted by group admin");
+        System.out.println("16. load - Load the collection from file");
+        System.out.println("Type 'help' for more details on each command.");
+    }
 }
+
+
+
+
+
+

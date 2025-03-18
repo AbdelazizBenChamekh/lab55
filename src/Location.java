@@ -29,7 +29,7 @@ public class Location {
         this.name = name;
     }
 
-    // Getters
+
     public Integer getX() {
         return x;
     }
